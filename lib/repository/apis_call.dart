@@ -23,7 +23,10 @@
 //
 // }
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:woosignal/models/response/payment_gateway.dart';
+import 'package:woosignal/models/response/product_variation.dart';
 
 class CallWooSignal {
   static const String baseUrl = "https://springgreen-magpie-211501.hostingersite.com/wp-json/wc/v3";
@@ -51,4 +54,77 @@ class CallWooSignal {
       print("Error creating order: $e");
     }
   }
+  /// Function to get payment gateways
+  /// Function to get payment gateways
+  Future<List<PaymentGateWay>> getPaymentGateways() async {
+    final Uri url = Uri.parse("$baseUrl/payment_gateways?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json"},
+      );
+     print(url);
+      if (response.statusCode == 200) { // 200 = OK
+        print("Payment gateways fetched successfully!");
+
+        // Parse the JSON response into a list of PaymentGateWay objects
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        print(jsonList);
+        final List<PaymentGateWay> paymentGateways = jsonList
+            .map((json) => PaymentGateWay.fromJson(json as Map<String, dynamic>))
+            .toList();
+
+        // Debugging: Print each payment gateway
+        for (var gateway in paymentGateways) {
+          print("Gateway: ${gateway.title}, Enabled: ${gateway.enabled}");
+        }
+
+        return paymentGateways;
+      } else {
+        print("Failed to fetch payment gateways: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("Error fetching payment gateways: $e");
+      return [];
+    }
+  }
+  Future<List<ProductVariation>> getProductVariations(int productId) async {
+    final Uri url = Uri.parse("$baseUrl/products/$productId/variations?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json"},
+      );
+      print(url);
+
+      if (response.statusCode == 200) { // 200 = OK
+        print("Product variations fetched successfully!");
+
+        // Parse the JSON response into a list of ProductVariation objects
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        print(jsonList);
+
+        final List<ProductVariation> productVariations = jsonList
+            .map((json) => ProductVariation.fromJson(json as Map<String, dynamic>))
+            .toList();
+
+        // Debugging: Print each product variation
+        for (var variation in productVariations) {
+          print("Variation: ${variation.attributes[0].option}, Price: ${variation.price}");
+        }
+
+        return productVariations;
+      } else {
+        print("Failed to fetch product variations: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("Error fetching product variations: $e");
+      return [];
+    }
+  }
+
 }

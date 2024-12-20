@@ -15,13 +15,13 @@ class CartScreen extends StatelessWidget {
     WooSignal wooSignal = WooSignal.instance;
     List<LineItems> lineItems = cartData.map((cartItem) {
       return LineItems(
-        name: cartItem.product.name,
-        productId: cartItem.product.id,
+        name: cartItem.productDetail.name,
+        productId: cartItem.productDetail.productId,
         // variationId: cartItem.product. ?? 0,
         quantity: cartItem.quantity,
         taxClass: "",
-        subtotal: (double.parse(cartItem.product.price!) * cartItem.quantity).toStringAsFixed(2),
-        total: (double.parse(cartItem.product.price!) * cartItem.quantity).toStringAsFixed(2),
+        subtotal: (double.parse(cartItem.productDetail.price!) * cartItem.quantity).toStringAsFixed(2),
+        total: (double.parse(cartItem.productDetail.price!) * cartItem.quantity).toStringAsFixed(2),
       );
     }).toList();
     // Example order data
@@ -181,7 +181,7 @@ class CartItemCard extends StatelessWidget {
           children: [
             // Product Image
             Image.network(
-              cartItem.product.images![0].src!,
+              cartItem.productDetail.image![0].src!,
               height: 80,
               width: 80,
               fit: BoxFit.cover,
@@ -193,14 +193,14 @@ class CartItemCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    cartItem.product.name!,
+                    cartItem.productDetail.name??"",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "\$${cartItem.product.price}",
+                    "\$${cartItem.productDetail.price}",
                     style: TextStyle(fontSize: 16, color: Colors.green),
                   ),
                   SizedBox(height: 8),
@@ -231,7 +231,7 @@ class CartItemCard extends StatelessWidget {
                       IconButton(
                         icon: Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
-                          context.read<CartModel>().removeFromCart(cartItem.product);
+                          context.read<CartModel>().removeFromCart(cartItem.productDetail);
                         },
                       ),
                     ],

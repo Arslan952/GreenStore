@@ -11,13 +11,13 @@ class FunctionClass{
     WooSignal wooSignal = WooSignal.instance;
     List<LineItems> lineItems = cartData.map((cartItem) {
       return LineItems(
-        name: cartItem.product.name,
-        productId: cartItem.product.id,
+        name: cartItem.productDetail.name,
+        productId: cartItem.productDetail.productId,
         // variationId: cartItem.product. ?? 0,
         quantity: cartItem.quantity,
         taxClass: "",
-        subtotal: (double.parse(cartItem.product.price!) * cartItem.quantity).toStringAsFixed(2),
-        total: (double.parse(cartItem.product.price!) * cartItem.quantity).toStringAsFixed(2),
+        subtotal: (double.parse(cartItem.productDetail.price!) * cartItem.quantity).toStringAsFixed(2),
+        total: (double.parse(cartItem.productDetail.price!) * cartItem.quantity).toStringAsFixed(2),
       );
     }).toList();
     // Example order data

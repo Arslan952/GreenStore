@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:green_commerce/models/product_model.dart';
 import 'package:woosignal/models/response/product.dart';
 
 class CartItem {
-  final Product product;
+  final ProductDetail productDetail;
   int quantity;
 
-  CartItem({required this.product, this.quantity = 1});
+  CartItem({required this.productDetail, this.quantity = 1});
 }
 
 class CartModel extends ChangeNotifier {
@@ -18,10 +19,10 @@ class CartModel extends ChangeNotifier {
     double total = 0.0;
     for (var item in _cartItems) {
       try {
-        total += double.parse(item.product.price ?? '0') * item.quantity;
+        total += double.parse(item.productDetail.price ?? '0') * item.quantity;
       } catch (e) {
         // Handle parsing error by skipping the item or logging the error
-        print("Error parsing price: ${item.product.price}");
+        print("Error parsing price: ${item.productDetail.price}");
       }
     }
     return total;
@@ -35,12 +36,12 @@ class CartModel extends ChangeNotifier {
     return totalQty;
   }
 
-  void addToCart(Product product, {int quantity = 1}) {
+  void addToCart(ProductDetail product, {int quantity = 1}) {
     // Check if the product is already in the cart
-    print(product.id);
+    print(product.productId);
     final existingItem = _cartItems.firstWhere(
-          (item) => item.product.id == product.id,
-      orElse: () => CartItem(product: product),
+          (item) => item.productDetail.productId == product.productId,
+      orElse: () => CartItem(productDetail: product),
     );
 
     if (_cartItems.contains(existingItem)) {
@@ -48,16 +49,17 @@ class CartModel extends ChangeNotifier {
       existingItem.quantity = quantity;
     } else {
       // If not, add the product to the cart with the specified quantity
-      _cartItems.add(CartItem(product: product, quantity: quantity));
+      _cartItems.add(CartItem(productDetail: product, quantity: quantity));
       existingItem.quantity = quantity;
     }
 
     notifyListeners();
   }
 
-  void removeFromCart(Product product) {
-    _cartItems.removeWhere((item) => item.product.id == product.id);
-    notifyListeners();
+
+  void removeFromCart(ProductDetail product) {
+    _cartItems.removeWhere((item) => item.productDetail.productId == product.productId);
+
   }
 
   void updateQuantity(CartItem cartItem, int newQuantity) {

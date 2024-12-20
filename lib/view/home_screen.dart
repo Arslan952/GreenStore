@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:green_commerce/view/product_detail.dart';
+import 'package:green_commerce/repository/apis_call.dart';
 import 'package:provider/provider.dart';
 import 'package:woosignal/models/response/customer.dart';
 import 'package:woosignal/models/response/customer_batch.dart';
@@ -63,7 +64,11 @@ void initState() {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Green Store", style: TextStyle(color: Colors.black),),
+        title: InkWell(
+              onTap: () async{
+               await CallWooSignal().getPaymentGateways();
+              },
+            child: const Text("Green Store", style: TextStyle(color: Colors.black),)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -112,6 +117,7 @@ void initState() {
               );
             },
           ),
+
         ],
       ),
       body: _isLoading

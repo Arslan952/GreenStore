@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:woosignal/models/response/product.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/cart_model.dart';
-import '../cart_screen.dart';
+import '../models/cart_model.dart';
+import 'cart_screen.dart';
 
 class ProductDetailPage extends StatefulWidget {
    ProductDetailPage({super.key, required this.product});

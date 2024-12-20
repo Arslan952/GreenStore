@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:green_commerce/view/widgets/product_detail.dart';
+import 'package:green_commerce/view/product_detail.dart';
 import 'package:provider/provider.dart';
 import 'package:woosignal/models/response/customer.dart';
 import 'package:woosignal/models/response/customer_batch.dart';
@@ -71,6 +71,7 @@ void initState() {
           Consumer<CartModel>(
             builder: (context, cartModel, child) {
               int cartItemCount = cartModel.cartItems.length;
+              int totalqty  = cartModel.totalQuantity;
               return IconButton(
                 icon: Stack(
                   children: [
@@ -90,7 +91,7 @@ void initState() {
                             minHeight: 18,
                           ),
                           child: Text(
-                            '$cartItemCount',
+                            '$totalqty',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,

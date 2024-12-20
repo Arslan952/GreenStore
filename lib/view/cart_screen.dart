@@ -7,12 +7,23 @@ import 'package:woosignal/models/payload/order_wc.dart';
 import 'package:woosignal/models/response/product.dart';
 import 'package:woosignal/woosignal.dart';
 import '../models/cart_model.dart';
+import 'billingInformation.dart';
 class CartScreen extends StatelessWidget {
 
   @override
-  void createAndSendOrder(BuildContext context,String name, int productId) async {
+  void createAndSendOrder(BuildContext context,String name,List<CartItem>cartData) async {
     WooSignal wooSignal = WooSignal.instance;
-
+    List<LineItems> lineItems = cartData.map((cartItem) {
+      return LineItems(
+        name: cartItem.product.name,
+        productId: cartItem.product.id,
+        // variationId: cartItem.product. ?? 0,
+        quantity: cartItem.quantity,
+        taxClass: "",
+        subtotal: (double.parse(cartItem.product.price!) * cartItem.quantity).toStringAsFixed(2),
+        total: (double.parse(cartItem.product.price!) * cartItem.quantity).toStringAsFixed(2),
+      );
+    }).toList();
     // Example order data
     OrderWC orderWC = OrderWC(
       paymentMethod: "bacs",
@@ -45,17 +56,7 @@ class CartScreen extends StatelessWidget {
         postcode: "94103",
         country: "US",
       ),
-      lineItems: [
-        LineItems(
-          name: 'Woo Single #1',
-          productId: 232,
-          variationId: 0,
-          quantity: 2,
-          taxClass: "",
-          subtotal: "6.00",
-          total: "6.00",
-        )
-      ],
+      lineItems: lineItems,
       shippingLines: [
         ShippingLines(
             methodId: 'flat_rate',
@@ -95,8 +96,9 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Your Cart"),
+        title: Text("Your Cart" ,style: TextStyle(color: Colors.black)),
         centerTitle: true,
+        elevation: 0,
         backgroundColor: Colors.transparent,
       ),
       body: Consumer<CartModel>(
@@ -137,7 +139,9 @@ class CartScreen extends StatelessWidget {
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       ElevatedButton(
-                        onPressed: () => createAndSendOrder(context,'',0),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => BillingDetailsScreen(cartData:cartModel.cartItems,)));
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),

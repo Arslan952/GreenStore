@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:woosignal/models/response/product.dart';
 
-
 class CartItem {
   final Product product;
   int quantity;
@@ -35,6 +34,7 @@ class CartModel extends ChangeNotifier {
     }
     return totalQty;
   }
+
   void addToCart(Product product, {int quantity = 1}) {
     // Check if the product is already in the cart
     print(product.id);
@@ -55,8 +55,6 @@ class CartModel extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
   void removeFromCart(Product product) {
     _cartItems.removeWhere((item) => item.product.id == product.id);
     notifyListeners();
@@ -65,5 +63,11 @@ class CartModel extends ChangeNotifier {
   void updateQuantity(CartItem cartItem, int newQuantity) {
     cartItem.quantity = newQuantity;
     notifyListeners();
+  }
+
+  // Function to clear the cart
+  void clearCart() {
+    _cartItems.clear(); // Remove all items from the cart
+    notifyListeners(); // Notify listeners that the cart has been cleared
   }
 }

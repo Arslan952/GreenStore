@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:green_commerce/provider/all_app_provider.dart';
+import 'package:green_commerce/user_authentication/auth_service_provider.dart';
+import 'package:green_commerce/view/auth/login_screen.dart';
 import 'package:green_commerce/view/home_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +12,8 @@ void main() {
     MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_)=>CartModel()),
+          ChangeNotifierProvider(create: (_)=>AuthServiceProvider()),
+          ChangeNotifierProvider(create: (_)=> AllAppProvider()),
         ],
         // child:
         // MyApp()
@@ -46,7 +51,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: false,
       ),
-      home: const HomeScreen(),
+      home: const LoginPage(),
     );
   }
 }

@@ -35,7 +35,8 @@ class CallWooSignal {
 
   /// Function to create an order
   Future<void> createOrder(Map<String, dynamic> orderData) async {
-    final Uri url = Uri.parse("$baseUrl/orders?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
+    final Uri url = Uri.parse(
+        "$baseUrl/orders?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
 
     try {
       final response = await http.post(
@@ -43,7 +44,7 @@ class CallWooSignal {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(orderData),
       );
-   print(orderData);
+      print(orderData);
       if (response.statusCode == 201) { // 201 = Created
         print("Order created successfully!");
         print("Response: ${response.body}");
@@ -54,17 +55,19 @@ class CallWooSignal {
       print("Error creating order: $e");
     }
   }
+
   /// Function to get payment gateways
   /// Function to get payment gateways
   Future<List<PaymentGateWay>> getPaymentGateways() async {
-    final Uri url = Uri.parse("$baseUrl/payment_gateways?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
+    final Uri url = Uri.parse(
+        "$baseUrl/payment_gateways?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
 
     try {
       final response = await http.get(
         url,
         headers: {"Content-Type": "application/json"},
       );
-     print(url);
+      print(url);
       if (response.statusCode == 200) { // 200 = OK
         print("Payment gateways fetched successfully!");
 
@@ -72,7 +75,8 @@ class CallWooSignal {
         final List<dynamic> jsonList = jsonDecode(response.body);
         print(jsonList);
         final List<PaymentGateWay> paymentGateways = jsonList
-            .map((json) => PaymentGateWay.fromJson(json as Map<String, dynamic>))
+            .map((json) =>
+            PaymentGateWay.fromJson(json as Map<String, dynamic>))
             .toList();
 
         // Debugging: Print each payment gateway
@@ -90,8 +94,10 @@ class CallWooSignal {
       return [];
     }
   }
+
   Future<List<ProductVariation>> getProductVariations(int productId) async {
-    final Uri url = Uri.parse("$baseUrl/products/$productId/variations?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
+    final Uri url = Uri.parse(
+        "$baseUrl/products/$productId/variations?consumer_key=$consumerKey&consumer_secret=$consumerSecret");
 
     try {
       final response = await http.get(
@@ -108,12 +114,15 @@ class CallWooSignal {
         print(jsonList);
 
         final List<ProductVariation> productVariations = jsonList
-            .map((json) => ProductVariation.fromJson(json as Map<String, dynamic>))
+            .map((json) =>
+            ProductVariation.fromJson(json as Map<String, dynamic>))
             .toList();
 
         // Debugging: Print each product variation
         for (var variation in productVariations) {
-          print("Variation: ${variation.attributes[0].option}, Price: ${variation.price}");
+          print(
+              "Variation: ${variation.attributes[0].option}, Price: ${variation
+                  .price}");
         }
 
         return productVariations;
@@ -127,4 +136,47 @@ class CallWooSignal {
     }
   }
 
+  // add review of products
+  Future<bool> addReview({
+    required int productId,
+    required String reviewer,
+    required String reviewerEmail,
+    required String review,
+    required int rating,
+    String status = "approved",
+  }) async {
+    final Uri url = Uri.parse("$baseUrl/products/reviews");
+
+    final Map<String, dynamic> body = {
+      "product_id": productId,
+      "reviewer": reviewer,
+      "reviewer_email": reviewerEmail,
+      "review": review,
+      "rating": rating,
+      "status": status,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Basic ${base64Encode(
+              utf8.encode("$consumerKey:$consumerSecret"))}",
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 201) {
+        print("Review added successfully!");
+        return true;
+      } else {
+        print("Failed to add review: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error while adding review: $e");
+      return false;
+    }
+  }
 }

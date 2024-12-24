@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:green_commerce/models/product_model.dart';
+import 'package:green_commerce/provider/all_app_provider.dart';
 import 'package:green_commerce/repository/apis_call.dart';
+import 'package:green_commerce/view/widgets/text_field.dart';
 import 'package:woosignal/models/response/product.dart';
 import 'package:provider/provider.dart';
 import 'package:woosignal/models/response/product_variation.dart';
@@ -23,7 +25,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   List<ProductVariation> _productVariation = [];
   bool isVariant = false;
   late ProductVariation productVariation;
-
+  final TextEditingController reviewController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   String? image;
   String? price;
   String? name;
@@ -400,7 +404,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ],
                       ),
                       SizedBox(
-                        height: 200,
+                        height: 300,
                         child: TabBarView(
                           children: [
                             // Description Tab
@@ -414,13 +418,80 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
 
                             // Reviews Tab
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'No reviews yet.',
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[700]),
-                              ),
+                            Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'No reviews yet.',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.grey[700]),
+                                    ),
+                                  ),
+                                ),
+                                 Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                       const Align(
+                                          alignment: Alignment.topLeft,
+                                           child: Text('Be the first to review "Bird Of Paradise"')),
+                                     const Row(
+                                        children: [
+                                          Text('Your Rating*'),
+                                          StarRatingWidget(),
+                                        ],
+                                      ),
+                                      SizedBox(height: 20,),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 80,
+                                        child: TextField(
+                                          controller: reviewController,
+                                          maxLines: 5, // Specifies the height of the text area
+                                          decoration: const InputDecoration(
+                                            border: OutlineInputBorder(), // Adds a border around the text area
+                                            labelText: 'Enter your review', // Placeholder or label
+                                            hintText: 'Write your review here...',
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 20,),
+                                      Row(
+                                        children: [
+                                          GlobalTextField(name: 'Name', controller: nameController),
+                                        ],
+                                      ),
+                                      Align(
+                                        alignment: Alignment.topLeft,
+                                        child: InkWell(
+                                          onTap: () async{
+                                             final provider  = Provider.of<AllAppProvider>(context,listen: false);
+                                              await provider.ProductReviewMethod(productDetail!.productId??0, 'approved', 'wajahat', 'oso.wajahatullah@gmail.com', reviewController.text, provider.productRating, false);
+                                              // CallWooSignal().addReview(productId: productDetail!.productId??0, reviewer: 'wajahat', reviewerEmail: 'oso.wajahatullah@gmail.com', review:reviewController.text , rating: provider.productRating);
+                                           },
+                                          child: Container(
+                                            width: 100,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius: BorderRadius.circular(7)
+                                            ),
+                                            child: Center(child: Text('Submit', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
+                                          ),
+                                        ),
+                                      ),
+
+
+
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -433,6 +504,46 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           },
         ),
       ),
+    );
+  }
+}
+class StarRatingWidget extends StatefulWidget {
+  const StarRatingWidget({Key? key}) : super(key: key);
+
+  @override
+  _StarRatingWidgetState createState() => _StarRatingWidgetState();
+}
+
+class _StarRatingWidgetState extends State<StarRatingWidget> {
+  int _selectedRating = 0;
+
+  // Method to handle star click
+  void _onStarTap(int index) {
+    setState(() {
+      _selectedRating = index;
+    });
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(5, (index) {
+        return GestureDetector(
+          onTap: (){
+            final provider  = Provider.of<AllAppProvider>(context,listen: false);
+            _onStarTap(index + 1);
+            provider.updateProductRating(_selectedRating);
+
+          },
+          child: Icon(
+            Icons.star,
+            color: index < _selectedRating ? Colors.amber : Colors.grey,
+            size: 30,
+          ),
+        );
+      }),
     );
   }
 }

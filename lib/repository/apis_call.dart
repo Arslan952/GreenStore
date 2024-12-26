@@ -24,6 +24,7 @@
 // }
 import 'dart:convert';
 import 'dart:developer';
+import 'package:green_commerce/models/customerModel.dart';
 import 'package:http/http.dart' as http;
 import 'package:woosignal/models/response/payment_gateway.dart';
 import 'package:woosignal/models/response/product_variation.dart';
@@ -179,4 +180,40 @@ class CallWooSignal {
       return false;
     }
   }
+
+  Future<bool> registerUser(CustomerModel model) async {
+    // Base64 encode WooCommerce credentials
+    var authToken = base64.encode(utf8.encode("$consumerKey:$consumerSecret"));
+
+    // Request headers
+    Map<String, String> requestHeader = {
+      "Content-Type": "application/json",
+      "Authorization": "Basic $authToken",
+    };
+
+    // URL for WooCommerce customer creation
+    final Uri url = Uri.parse("$baseUrl/customers");
+
+    // Prepare request body from CustomerModel
+    try {
+      final response = await http.post(
+        url,
+        headers: requestHeader,
+        body: jsonEncode(model.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        print("Customer successfully registered!");
+        return true;  // Registration successful
+      } else {
+        final errorData = jsonDecode(response.body);
+        print("Error: ${errorData['message'] ?? 'Unknown error'}");
+        return false;  // Registration failed
+      }
+    } catch (e) {
+      print("Error during registration: $e");
+      return false;  // Error occurred during request
+    }
+  }
+
 }

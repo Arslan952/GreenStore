@@ -137,7 +137,7 @@ void initState() {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.black,))
           : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

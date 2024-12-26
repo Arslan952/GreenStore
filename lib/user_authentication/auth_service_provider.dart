@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:green_commerce/models/customerModel.dart';
 import 'package:green_commerce/view/auth/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -170,4 +171,6 @@ class AuthServiceProvider extends ChangeNotifier {
   }
 
   
+
+
   }

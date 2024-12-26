@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:green_commerce/user_authentication/auth_service_provider.dart';
+import 'package:green_commerce/view/createCustomer.dart';
 import 'package:green_commerce/view/home_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -174,7 +175,20 @@ class _LoginPageState extends State<LoginPage> {
                     fontSize: 17,
                   ),
                 ),
-              )
+              ),
+              // const SizedBox(height: 5),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateCustomerScreen()));
+                },
+                child: const Text(
+                  "Register?",
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 17,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

@@ -15,6 +15,7 @@ class AuthServiceProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> authenticateUser(String username,
       String password, BuildContext context) async {
     final url = Uri.parse("$baseUrl/token");
+     updateIsLoading(true);
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
@@ -35,6 +36,7 @@ class AuthServiceProvider extends ChangeNotifier {
       await prefs.setString('token', responseData['token'].toString());
       AuthResponse authResponse = AuthResponse.fromJson(responseData);
       storeAuthResponse(authResponse);
+       updateIsLoading(false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -57,6 +59,7 @@ class AuthServiceProvider extends ChangeNotifier {
           backgroundColor: Colors.white,
         ),
       );
+      updateIsLoading(false);
       throw Exception("Failed to authenticate user: ${response.body}");
     }
   }
@@ -191,5 +194,9 @@ class AuthServiceProvider extends ChangeNotifier {
     }
     return null; // Return null if no data is found
   }
-
+  bool isLoading  = false;
+  updateIsLoading (bool value){
+    isLoading= value;
+    notifyListeners();
+  }
 }

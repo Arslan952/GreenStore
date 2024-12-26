@@ -62,30 +62,35 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Form(
-            key: _loginFormKey,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  height: MediaQuery.sizeOf(context).height * 0.4,
-                  width:MediaQuery.sizeOf(context).height * 0.4 ,
-                  child: Image.asset(
-                     fit: BoxFit.cover,
-                      'assets/images/logo3.png'),
+        child: Consumer<AuthServiceProvider>(
+
+          builder: (BuildContext context, provider, Widget? child) {
+              return  Form(
+                key: _loginFormKey,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.4,
+                        width:MediaQuery.sizeOf(context).height * 0.4 ,
+                        child: Image.asset(
+                            fit: BoxFit.cover,
+                            'assets/images/logo3.png'),
+                      ),
+                    ),
+                    // _buildSocialLogins(),
+                    _buildInputFields(provider)
+                  ],
                 ),
-              ),
-              // _buildSocialLogins(),
-              _buildInputFields()
-            ],
-          ),
+              );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildInputFields() {
+  Widget _buildInputFields(AuthServiceProvider provider) {
     return ClipPath(
       // clipper: CustomClipperWidget(),
       child: Container(
@@ -148,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-
+         provider.isLoading==false?
           InkWell(
                 onTap: (){
                      _login();
@@ -164,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   child: Center(child: Text('LOGIN', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
                 ),
-              ),
+              ):Center(child: CircularProgressIndicator(color: Colors.white,)),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {},

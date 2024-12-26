@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:green_commerce/models/customerModel.dart';
+import 'package:green_commerce/view/auth/login_screen.dart';
 import 'package:woosignal/woosignal.dart';
 
 import '../repository/apis_call.dart';
@@ -131,6 +132,15 @@ class _CreateCustomerScreenState extends State<CreateCustomerScreen> {
                       ),
                     ),
                   ),
+
+                  InkWell(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginPage()));
+                    },
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 18),
+                        child: Center(child: Text('Already have an account?login', style: TextStyle(color: Colors.green, fontSize: 18),))),
+                  )
                 ],
               ),
             ),

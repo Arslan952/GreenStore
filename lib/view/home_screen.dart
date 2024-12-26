@@ -119,6 +119,12 @@ void initState() {
                     },
                   ),
                   IconButton(onPressed: ()async{
+                   // List<Customer>customer=await  WooSignal.instance.getCustomers();
+                   // for (var cus in customer) {
+                   //   print("id:${cus.id}");
+                   //   print("name:${cus.firstName}");
+                   //   print("usename:${cus.username}");
+                   // }
                     final provider =Provider.of<AuthServiceProvider>(context,listen: false);
                     await provider.clearToken(context);
 

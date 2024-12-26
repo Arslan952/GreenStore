@@ -3,6 +3,7 @@ import 'package:green_commerce/provider/all_app_provider.dart';
 import 'package:green_commerce/user_authentication/auth_service_provider.dart';
 import 'package:green_commerce/view/auth/login_screen.dart';
 import 'package:green_commerce/view/home_screen.dart';
+import 'package:green_commerce/view/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'models/cart_model.dart';
@@ -51,7 +52,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: false,
       ),
-      home: const LoginPage(),
+      home:SplashScreen()
+      // const LoginPage(),
     );
   }
 }

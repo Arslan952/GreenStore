@@ -3,6 +3,7 @@ import 'package:green_commerce/user_authentication/auth_service_provider.dart';
 import 'package:green_commerce/view/home_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../../function.dart';
 import 'cliper_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,6 +16,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
+  bool isRemembered = false;
+  final _loginFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -22,7 +25,31 @@ class _LoginPageState extends State<LoginPage> {
     passwordController = TextEditingController();
     super.initState();
   }
-
+  Future<void> _login() async {
+    print('hello login ');
+    bool isConnected = await FunctionClass().isInternetConnected();
+    final provider  = Provider.of<AuthServiceProvider>(context, listen:false);
+    final form = _loginFormKey.currentState;
+    if (!isConnected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Internet not connected',
+              style: TextStyle(color: Colors.red),
+            ),
+            backgroundColor: Colors.white,
+          ),
+      );
+          return;
+    }
+    if (form!.validate()) {
+      provider.authenticateUser(emailController.text, passwordController.text,context);
+      if (isRemembered) {
+        provider.saveCredentials(
+            emailController.text, passwordController.text);
+      }
+    }
+  }
   @override
   void dispose() {
     emailController.dispose();
@@ -34,21 +61,24 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: MediaQuery.sizeOf(context).height * 0.4,
-                width:MediaQuery.sizeOf(context).height * 0.4 ,
-                child: Image.asset(
-                   fit: BoxFit.cover,
-                    'assets/images/logo.png'),
+        child: Form(
+            key: _loginFormKey,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: MediaQuery.sizeOf(context).height * 0.4,
+                  width:MediaQuery.sizeOf(context).height * 0.4 ,
+                  child: Image.asset(
+                     fit: BoxFit.cover,
+                      'assets/images/logo3.png'),
+                ),
               ),
-            ),
-            // _buildSocialLogins(),
-            _buildInputFields()
-          ],
+              // _buildSocialLogins(),
+              _buildInputFields()
+            ],
+          ),
         ),
       ),
     );
@@ -60,14 +90,16 @@ class _LoginPageState extends State<LoginPage> {
       child: Container(
         decoration: const BoxDecoration(
            borderRadius: BorderRadius.only( topRight: Radius.circular(50),topLeft:Radius.circular(50) ),
-            gradient: LinearGradient(
-              colors: [
-                Colors.green,
-                Color.fromARGB(100, 40, 50, 100),
-              ],
-              begin: Alignment.topRight,
-              end: Alignment.topLeft,
-            )),
+            color: Colors.green
+            // gradient: LinearGradient(
+            //   colors: [
+            //     Colors.green,
+            //     Color.fromARGB(100, 40, 50, 100),
+            //   ],
+            //   begin: Alignment.topRight,
+            //   end: Alignment.topLeft,
+            // )
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -88,19 +120,45 @@ class _LoginPageState extends State<LoginPage> {
               _buildTextField(
                   passwordController, Icons.info_outline, "Password",
                   isPassword: true),
-              const SizedBox(height: 40),
+              const SizedBox(height: 10),
 
-              InkWell(
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                'Remember me',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              SizedBox(width: 8),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isRemembered = !isRemembered;
+                  });
+                },
+                icon: Icon(
+                  isRemembered ? Icons.check_box : Icons.check_box_outline_blank,
+                   size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+          InkWell(
                 onTap: (){
-                     final provider  = Provider.of<AuthServiceProvider>(context, listen:false);
-                      provider.authenticateUser(emailController.text, passwordController.text,context);
+                     _login();
                     // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
                 },
                 child: Container(
                   width: 100,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.blueGrey,
+                    color: Colors.green,
+                    border: Border.all(color: Colors.brown,width: 2),
                     borderRadius: BorderRadius.circular(20)
                   ),
                   child: Center(child: Text('LOGIN', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
@@ -124,40 +182,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildSocialLogins() {
-    return Column(
-      children: [
-        const Text(
-          "Or sign in with",
-          style: TextStyle(fontSize: 16),
-        ),
-        const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Image.asset("assets/images/google.png"),
-                iconSize: 60,
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Image.asset("assets/images/facebook.png"),
-                iconSize: 60,
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Image.asset("assets/images/twitter.png"),
-                iconSize: 60,
-              )
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildTextField(
       TextEditingController controller, IconData icon, String hint,

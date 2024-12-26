@@ -10,6 +10,7 @@ import 'package:woosignal/models/response/product_variation.dart';
 import 'package:woosignal/woosignal.dart';
 
 import '../models/cart_model.dart';
+import '../user_authentication/auth_service_provider.dart';
 import 'cart_screen.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -101,47 +102,56 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             builder: (context, cartModel, child) {
               int cartItemCount = cartModel.cartItems.length;
               int totalqty = cartModel.totalQuantity;
-              return IconButton(
-                icon: Stack(
-                  children: [
-                    Icon(
-                      Icons.shopping_cart,
-                      size: 30,
-                      color: Colors.black,
-                    ),
-                    if (cartItemCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 18,
-                            minHeight: 18,
-                          ),
-                          child: Text(
-                            '$totalqty',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+              return Row(
+                children: [
+                  IconButton(
+                    icon: Stack(
+                      children: [
+                        const Icon(
+                          Icons.shopping_cart,
+                          size: 30,
+                          color: Colors.black,
                         ),
-                      ),
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CartScreen()),
-                  );
-                },
+                        if (cartItemCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 18,
+                                minHeight: 18,
+                              ),
+                              child: Text(
+                                '$totalqty',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CartScreen()),
+                      );
+                    },
+                  ),
+                  IconButton(onPressed: ()async{
+                    final provider =Provider.of<AuthServiceProvider>(context,listen: false);
+                    await provider.clearToken(context);
+
+                  }, icon: Icon(Icons.logout_outlined,color: Colors.black,size: 30,))
+                ],
               );
             },
           ),
@@ -175,7 +185,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     children: [
                       Text(
                         widget.product.name!,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),

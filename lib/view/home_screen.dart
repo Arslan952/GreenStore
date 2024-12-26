@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:green_commerce/user_authentication/auth_service_provider.dart';
 import 'package:green_commerce/view/product_detail.dart';
 import 'package:green_commerce/repository/apis_call.dart';
 import 'package:provider/provider.dart';
@@ -77,43 +78,52 @@ void initState() {
             builder: (context, cartModel, child) {
               int cartItemCount = cartModel.cartItems.length;
               int totalqty  = cartModel.totalQuantity;
-              return IconButton(
-                icon: Stack(
-                  children: [
-                    Icon(Icons.shopping_cart, size: 30,color: Colors.black,),
-                    if (cartItemCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 18,
-                            minHeight: 18,
-                          ),
-                          child: Text(
-                            '$totalqty',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+              return Row(
+                children: [
+                  IconButton(
+                    icon: Stack(
+                      children: [
+                        Icon(Icons.shopping_cart, size: 30,color: Colors.black,),
+                        if (cartItemCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 18,
+                                minHeight: 18,
+                              ),
+                              child: Text(
+                                '$totalqty',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                        ),
-                      ),
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CartScreen()),
-                  );
-                },
+                      ],
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CartScreen()),
+                      );
+                    },
+                  ),
+                  IconButton(onPressed: ()async{
+                    final provider =Provider.of<AuthServiceProvider>(context,listen: false);
+                    await provider.clearToken(context);
+
+                  }, icon: Icon(Icons.logout_outlined,color: Colors.black,size: 30,))
+                ],
               );
             },
           ),

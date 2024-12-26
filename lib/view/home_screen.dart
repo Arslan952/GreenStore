@@ -5,12 +5,14 @@ import 'package:green_commerce/user_authentication/auth_service_provider.dart';
 import 'package:green_commerce/view/product_detail.dart';
 import 'package:green_commerce/repository/apis_call.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:woosignal/models/response/customer.dart';
 import 'package:woosignal/models/response/customer_batch.dart';
 import 'package:woosignal/models/response/product.dart';
 import 'package:woosignal/models/response/product_category.dart';
 import 'package:woosignal/woosignal.dart';
 
+import '../models/auth_model.dart';
 import '../models/cart_model.dart';
 import 'cart_screen.dart';
 
@@ -119,14 +121,13 @@ void initState() {
                     },
                   ),
                   IconButton(onPressed: ()async{
-                   // List<Customer>customer=await  WooSignal.instance.getCustomers();
-                   // for (var cus in customer) {
-                   //   print("id:${cus.id}");
-                   //   print("name:${cus.firstName}");
-                   //   print("usename:${cus.username}");
-                   // }
                     final provider =Provider.of<AuthServiceProvider>(context,listen: false);
-                    await provider.clearToken(context);
+                    // await provider.clearToken(context);
+                    AuthResponse? authResponse = await provider.retrieveAuthResponse();
+                     if(authResponse!=null){
+                         print('id:${authResponse.userId}');
+                         print('userName:${authResponse.userDisplayName}');
+                     }
 
                   }, icon: Icon(Icons.logout_outlined,color: Colors.black,size: 30,))
                 ],

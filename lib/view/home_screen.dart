@@ -122,12 +122,12 @@ void initState() {
                   ),
                   IconButton(onPressed: ()async{
                     final provider =Provider.of<AuthServiceProvider>(context,listen: false);
-                    // await provider.clearToken(context);
-                    AuthResponse? authResponse = await provider.retrieveAuthResponse();
-                     if(authResponse!=null){
-                         print('id:${authResponse.userId}');
-                         print('userName:${authResponse.userDisplayName}');
-                     }
+                    await provider.clearToken(context);
+                    // AuthResponse? authResponse = await provider.retrieveAuthResponse();
+                    //  if(authResponse!=null){
+                    //      print('id:${authResponse.userId}');
+                    //      print('userName:${authResponse.userDisplayName}');
+                    //  }
 
                   }, icon: Icon(Icons.logout_outlined,color: Colors.black,size: 30,))
                 ],

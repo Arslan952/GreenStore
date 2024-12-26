@@ -37,9 +37,9 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(width: size.width * 0.5, 'assets/images/logo2.png'),
+            Image.asset(width: size.width * 0.8, 'assets/images/logo3.png'),
             SizedBox(
-              height: size.height * 0.150,
+              height: size.height * 0.1,
             ),
             Center(
               child: LoadingAnimationWidget.inkDrop(

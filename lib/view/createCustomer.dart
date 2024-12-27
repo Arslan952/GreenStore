@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:green_commerce/models/customerModel.dart';
 import 'package:green_commerce/view/auth/login_screen.dart';
+import 'package:motion_toast/motion_toast.dart';
 import 'package:woosignal/woosignal.dart';
 
 import '../repository/apis_call.dart';
@@ -59,21 +60,33 @@ class _CreateCustomerScreenState extends State<CreateCustomerScreen> {
         _emailController.clear();
 
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Customer created successfully!")),
-        );
+        MotionToast.success(
+          title:  Text("Success"),
+          description:  Text("Customer created successfully!"),
+        ).show(context);
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text("Customer created successfully!")),
+        // );
 
         // Pop out the screen (navigate back)
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to create customer.")),
-        );
+        MotionToast.error(
+          title:  const Text("Failed"),
+          description:  const Text("Failed to create customer."),
+        ).show(context);
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text("Failed to create customer.")),
+        // );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      MotionToast.error(
+        title:  const Text("Failed"),
+        description:   Text("Error: $e"),
+      ).show(context);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("Error: $e")),
+      // );
     } finally {
       setState(() {
         _isLoading = false;

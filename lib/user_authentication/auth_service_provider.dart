@@ -9,7 +9,7 @@ import '../models/auth_model.dart';
 import '../view/home_screen.dart';
 
 class AuthServiceProvider extends ChangeNotifier {
-  final String baseUrl = "https://springgreen-magpie-211501.hostingersite.com/wp-json/jwt-auth/v1";
+  final String baseUrl = "https://mistyrose-trout-461429.hostingersite.com/wp-json/jwt-auth/v1";
 
   /// User Authentication: Logs in a user and retrieves a token
   Future<Map<String, dynamic>> authenticateUser(String username,
@@ -22,16 +22,12 @@ class AuthServiceProvider extends ChangeNotifier {
       body: jsonEncode({"username": username, "password": password}),
     );
 
-    print(url);
-
     if (response.statusCode == 200) {
-      print('User successfully logged in');
       SharedPreferences prefs = await SharedPreferences.getInstance();
       Map<String, dynamic> responseData = await json.decode(
           response.body.toString());
       var decodeData = parseJwt(responseData['token']);
       var id = decodeData['data']['user']['id'].toString();
-      print("id:${id}");
       responseData['id'] = id;
       await prefs.setString('token', responseData['token'].toString());
       AuthResponse authResponse = AuthResponse.fromJson(responseData);
@@ -103,7 +99,6 @@ class AuthServiceProvider extends ChangeNotifier {
         "Authorization": "Bearer $token",
       },
     );
-    print(url);
     if (response.statusCode == 200) {
       print(response.body);
       return jsonDecode(response.body); // Contains the refreshed token

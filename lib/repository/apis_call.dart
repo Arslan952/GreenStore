@@ -30,9 +30,9 @@ import 'package:woosignal/models/response/payment_gateway.dart';
 import 'package:woosignal/models/response/product_variation.dart';
 
 class CallWooSignal {
-  static const String baseUrl = "https://springgreen-magpie-211501.hostingersite.com/wp-json/wc/v3";
-  static const String consumerKey = "ck_eb52ecd047f5d0169c24abb0d46661f2c64ee5a3";
-  static const String consumerSecret = "cs_82a8f5e46665ee61fbae3aa301f0fdf8e0a54067";
+  static const String baseUrl = "https://mistyrose-trout-461429.hostingersite.com/wp-json/wc/v3";
+  static const String consumerKey = "ck_c667b388fb37a8802e440d3d4c6de6d8f7223756";
+  static const String consumerSecret = "cs_a1519ecc0eaa3b0f466f5a78e0ce6ab71b3c04d2";
 
   /// Function to create an order
   Future<void> createOrder(Map<String, dynamic> orderData) async {

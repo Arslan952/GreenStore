@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       // Initialize WooSignal once
       await WooSignal.instance
-          .init(appKey: "app_7783c0966547d618955b5223e22540");
+          .init(appKey: "app_7b6199a34708a71e60299a573f84a6");
 
       // Fetch data
       List<ProductCategory>? categories =
@@ -208,20 +208,20 @@ void initState() {
                   );
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
-              Text(
+              const Text(
                 "Products",
                 style:
                 TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               GridView.builder(
                 padding: const EdgeInsets.all(16),
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 gridDelegate:
                 const SliverGridDelegateWithFixedCrossAxisCount(

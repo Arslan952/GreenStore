@@ -510,16 +510,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(height: 20,),
+                                          const SizedBox(height: 20,),
                                           Row(
                                             children: [
                                               GlobalTextField(name: 'Name', controller: nameController),
                                               GlobalTextField(name: 'Email', controller: emailController),
                                             ],
                                           ),
-                                          SizedBox(height: 10,),
+                                          const SizedBox(height: 10,),
                                           value.reviewLoading ?
-                                              Center(child: CircularProgressIndicator(color: Colors.black,)):
+                                              const Center(child: CircularProgressIndicator(color: Colors.black,)):
                                           Align(
                                             alignment: Alignment.center,
                                             child: InkWell(
@@ -567,7 +567,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                                     color: Colors.green,
                                                     borderRadius: BorderRadius.circular(7)
                                                 ),
-                                                child: Center(child: Text('Submit', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
+                                                child: const Center(child: Text('Submit', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
                                               ),
                                             ),
                                           ),

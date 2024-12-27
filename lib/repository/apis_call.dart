@@ -24,10 +24,15 @@
 // }
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:green_commerce/models/customerModel.dart';
+import 'package:green_commerce/provider/all_app_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:woosignal/models/response/payment_gateway.dart';
 import 'package:woosignal/models/response/product_variation.dart';
+
+import '../models/reviewModel.dart';
 
 class CallWooSignal {
   static const String baseUrl = "https://mistyrose-trout-461429.hostingersite.com/wp-json/wc/v3";
@@ -68,6 +73,7 @@ class CallWooSignal {
         url,
         headers: {"Content-Type": "application/json"},
       );
+      print("Urlll");
       print(url);
       if (response.statusCode == 200) { // 200 = OK
         print("Payment gateways fetched successfully!");
@@ -145,7 +151,8 @@ class CallWooSignal {
     required String review,
     required int rating,
     String status = "approved",
-  }) async {
+  })
+  async {
     final Uri url = Uri.parse("$baseUrl/products/reviews");
 
     final Map<String, dynamic> body = {
@@ -177,6 +184,42 @@ class CallWooSignal {
       }
     } catch (e) {
       print("Error while adding review: $e");
+      return false;
+    }
+  }
+
+  Future<bool> getProductReview({
+    required int productId,
+    required BuildContext context
+  })
+  async {
+    Provider.of<AllAppProvider>(context,listen: false).updateReviewLoad(true);
+    final Uri url = Uri.parse("$baseUrl/products/reviews?product=${productId.toString()}");
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Basic ${base64Encode(
+              utf8.encode("$consumerKey:$consumerSecret"))}",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body) as List;
+        // Map JSON to ReviewModel list
+        List<ReviewModel> reviews = data.map((item) => ReviewModel.fromJson(item)).toList();
+        Provider.of<AllAppProvider>(context,listen: false). updateReviewModel(reviews);
+        Provider.of<AllAppProvider>(context,listen: false).updateReviewLoad(false);
+        return true;
+      } else {
+        Provider.of<AllAppProvider>(context,listen: false).updateReviewLoad(false);
+        print("There is an error: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error while adding review: $e");
+      Provider.of<AllAppProvider>(context,listen: false).updateReviewLoad(false);
       return false;
     }
   }

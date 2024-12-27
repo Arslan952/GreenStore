@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:green_commerce/user_authentication/auth_service_provider.dart';
 import 'package:green_commerce/view/createCustomer.dart';
 import 'package:green_commerce/view/home_screen.dart';
+import 'package:motion_toast/motion_toast.dart';
 import 'package:provider/provider.dart';
 
 import '../../function.dart';
@@ -33,15 +34,19 @@ class _LoginPageState extends State<LoginPage> {
     final provider = Provider.of<AuthServiceProvider>(context, listen: false);
     final form = _loginFormKey.currentState;
     if (!isConnected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Internet not connected',
-            style: TextStyle(color: Colors.red),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
+      MotionToast.error(
+        title:  const Text("Failed"),
+        description:  const Text("Internet not connected"),
+      ).show(context);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(
+      //       'Internet not connected',
+      //       style: TextStyle(color: Colors.red),
+      //     ),
+      //     backgroundColor: Colors.white,
+      //   ),
+      // );
       return;
     }
     if (form!.validate()) {

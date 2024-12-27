@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:green_commerce/provider/all_app_provider.dart';
 import 'package:green_commerce/repository/create_order.dart';
+import 'package:green_commerce/user_authentication/auth_service_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:woosignal/models/payload/order_wc.dart';
 import 'package:woosignal/woosignal.dart';
 
+import 'models/auth_model.dart';
 import 'models/cart_model.dart';
 
 class FunctionClass{
@@ -22,6 +26,13 @@ class FunctionClass{
         total: (double.parse(cartItem.productDetail.price!) * cartItem.quantity).toStringAsFixed(2),
       );
     }).toList();
+    AuthResponse? authResponse = await Provider.of<AuthServiceProvider>(context,listen: false).retrieveAuthResponse();
+    int userId=0;
+    if(authResponse!=null){
+      userId=authResponse.userId;
+      print('id:${authResponse.userId}');
+      print('userName:${authResponse.userDisplayName}');
+    }
     // Example order data
     OrderWC orderWC = OrderWC(
       paymentMethod: "bacs",
@@ -31,7 +42,7 @@ class FunctionClass{
       currency: 'USD',
       customerNote: "",
       parentId: 0,
-      customerId: 0,
+      customerId:userId,
       billing:billing,
       shipping:shipping,
       lineItems: lineItems,

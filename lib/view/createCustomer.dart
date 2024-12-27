@@ -106,7 +106,7 @@ class _CreateCustomerScreenState extends State<CreateCustomerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   const Center(
                     child: Text(
                       "Register User",

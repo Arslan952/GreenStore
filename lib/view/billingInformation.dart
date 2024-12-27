@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:woosignal/models/payload/order_wc.dart';
 import '../function.dart';
-import '../models/cart_model.dart'; // Import your order creation function
+import '../models/cart_model.dart';
+import '../provider/all_app_provider.dart'; // Import your order creation function
 
 class BillingDetailsScreen extends StatefulWidget {
   final List<CartItem> cartData;
@@ -39,9 +41,7 @@ class _BillingDetailsScreenState extends State<BillingDetailsScreen> {
   // Function to handle form submission
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        isLoading=true;
-      });
+
       // Create Billing and Shipping objects from form data
       Billing billingDetails = Billing(
         firstName: _firstNameController.text,
@@ -70,9 +70,7 @@ class _BillingDetailsScreenState extends State<BillingDetailsScreen> {
 
       // Call the order creation function
       FunctionClass().createAndSendOrder(context, widget.cartData, billingDetails, shippingDetails);
-      setState(() {
-        isLoading=false;
-      });
+
     }
   }
 
@@ -123,21 +121,31 @@ class _BillingDetailsScreenState extends State<BillingDetailsScreen> {
                 _buildTextField(_phoneController, 'Phone', 'Please enter your phone number', validator: _phoneValidator),
                 _buildTextField(_emailController, 'Email address', 'Please enter a valid email', keyboardType: TextInputType.emailAddress, validator: _emailValidator),
                 _buildTextField(_orderNotesController, 'Order notes (optional)', null, maxLines: 3),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                  child: isLoading==true?
-                      Center(child: CircularProgressIndicator()):
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50.0, // Set height to 100 pixels
-                    child: ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green, // Set button color to green
-                      ),
-                      child: Text('Submit'),
-                    ),
+                  child:
+                  Consumer<AllAppProvider>(
+                    builder: (BuildContext context, allProvider,
+                        Widget? child) {
+                      return  allProvider.isOrdercreating==true?
+                          const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.black,
+                            ),
+                          ):
+                        SizedBox(
+                        width: double.infinity,
+                        height: 50.0, // Set height to 100 pixels
+                        child: ElevatedButton(
+                          onPressed: _submitForm,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green, // Set button color to green
+                          ),
+                          child: Text('Submit'),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],

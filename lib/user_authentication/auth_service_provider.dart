@@ -4,61 +4,76 @@ import 'package:flutter/material.dart';
 import 'package:green_commerce/models/customerModel.dart';
 import 'package:green_commerce/view/auth/login_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:motion_toast/motion_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/auth_model.dart';
+import '../models/reviewModel.dart';
 import '../view/home_screen.dart';
 
 class AuthServiceProvider extends ChangeNotifier {
   final String baseUrl = "https://mistyrose-trout-461429.hostingersite.com/wp-json/jwt-auth/v1";
 
   /// User Authentication: Logs in a user and retrieves a token
-  Future<Map<String, dynamic>> authenticateUser(String username,
-      String password, BuildContext context) async {
+  Future<Map<String, dynamic>> authenticateUser(
+      String username, String password, BuildContext context)
+  async {
     final url = Uri.parse("$baseUrl/token");
-     updateIsLoading(true);
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"username": username, "password": password}),
-    );
+    updateIsLoading(true);
 
-    if (response.statusCode == 200) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      Map<String, dynamic> responseData = await json.decode(
-          response.body.toString());
-      var decodeData = parseJwt(responseData['token']);
-      var id = decodeData['data']['user']['id'].toString();
-      responseData['id'] = id;
-      await prefs.setString('token', responseData['token'].toString());
-      AuthResponse authResponse = AuthResponse.fromJson(responseData);
-      storeAuthResponse(authResponse);
-       updateIsLoading(false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Successfully Logged In',
-            style: TextStyle(color: Colors.green),
-          ),
-          backgroundColor: Colors.white,
-        ),
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"username": username, "password": password}),
       );
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
-      return jsonDecode(response.body);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Unauthorized User',
-            style: TextStyle(color: Colors.red),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
+
+      if (response.statusCode == 200) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        Map<String, dynamic> responseData =
+        await json.decode(response.body.toString());
+        var decodeData = parseJwt(responseData['token']);
+        var id = decodeData['data']['user']['id'].toString();
+        responseData['id'] = id;
+        await prefs.setString('token', responseData['token'].toString());
+        AuthResponse authResponse = AuthResponse.fromJson(responseData);
+        storeAuthResponse(authResponse);
+
+        updateIsLoading(false);
+        MotionToast.success(
+          title: Text("Success"),
+          description: Text("Successfully Logged In"),
+        ).show(context);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+
+        return jsonDecode(response.body);
+      } else {
+        MotionToast.error(
+          title: Text("Failed"),
+          description: const Text("Unauthorized User"),
+        ).show(context);
+
+        updateIsLoading(false);
+        throw Exception("Failed to authenticate user: ${response.body}");
+      }
+    } catch (error) {
       updateIsLoading(false);
-      throw Exception("Failed to authenticate user: ${response.body}");
+
+      // Show a toast for any error that occurs
+      MotionToast.error(
+        title: Text("Error"),
+        description: Text(
+            "An error occurred during login. Please try again later.\n$error"),
+      ).show(context);
+
+      // Re-throw the error to let calling code handle it, if needed
+      throw Exception("An unexpected error occurred: $error");
     }
   }
+
 
   Future<bool> validateToken(String token, BuildContext context) async {
     final url = Uri.parse("$baseUrl/token/validate");
@@ -194,4 +209,5 @@ class AuthServiceProvider extends ChangeNotifier {
     isLoading= value;
     notifyListeners();
   }
+
 }

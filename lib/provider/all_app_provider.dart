@@ -4,6 +4,7 @@ import 'package:woosignal/models/response/product_review.dart';
 import 'package:woosignal/woosignal.dart';
 
 import '../models/create_product_review_model.dart';
+import '../models/reviewModel.dart';
 
 class AllAppProvider extends ChangeNotifier {
   ProductReview? _latestReview;
@@ -49,6 +50,7 @@ class AllAppProvider extends ChangeNotifier {
   int productRating  = 0;
     updateProductRating (int value) {
       productRating=value;
+      print(value);
       notifyListeners();
     }
 
@@ -57,5 +59,31 @@ class AllAppProvider extends ChangeNotifier {
       reviewLoading=value;
       notifyListeners();
     }
+
+
+  //Get Review
+  bool isReviewLoad=false;
+
+    updateReviewLoad(bool data)
+    {
+      isReviewLoad=data;
+      notifyListeners();
+    }
+
+  List<ReviewModel>reviewData=[];
+    updateReviewModel(List<ReviewModel>data)
+    {
+      reviewData=data;
+      notifyListeners();
+    }
+
+    //Create Order
+bool isOrdercreating=false;
+    updateOrderCreating(bool data)
+    {
+      isOrdercreating=data;
+      notifyListeners();
+    }
+
 
 }

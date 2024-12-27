@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:green_commerce/models/product_model.dart';
 import 'package:green_commerce/provider/all_app_provider.dart';
 import 'package:green_commerce/repository/apis_call.dart';
 import 'package:green_commerce/view/widgets/text_field.dart';
 import 'package:motion_toast/motion_toast.dart';
+import 'package:simple_html_css/simple_html_css.dart';
 import 'package:woosignal/models/response/product.dart';
 import 'package:provider/provider.dart';
 import 'package:woosignal/models/response/product_review.dart';
@@ -17,7 +19,8 @@ import 'cart_screen.dart';
 
 class ProductDetailPage extends StatefulWidget {
   ProductDetailPage({super.key, required this.product});
-   final Product product;
+
+  final Product product;
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -34,13 +37,36 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   String? image;
   String? price;
   String? name;
+  List<ProductReview> _review = [];
+  bool _isLoading = true;
   ProductDetail? productDetail; // Made nullable for later initialization
+  Future<void> getReview() async {
+    try {
+      // Initialize WooSignal once
+
+      // Fetch data
+      await CallWooSignal()
+          .getProductReview(productId: widget.product.id!, context: context);
+
+      print(_review.length);
+      setState(() {
+        // _review=review;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error initializing WooSignal: $e");
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    getReview();
     getProductVariation();
-    updateProductModel();// Fetch variations on init
+    updateProductModel(); // Fetch variations on init
   }
 
   // Increment quantity
@@ -62,7 +88,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   getProductVariation() async {
     try {
       List<ProductVariation> productVariation =
-      await WooSignal.instance.getProductVariations(widget.product.id ?? 0);
+          await WooSignal.instance.getProductVariations(widget.product.id ?? 0);
       setState(() {
         _productVariation = productVariation;
       });
@@ -78,21 +104,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       productId: widget.product.id,
       price: widget.product.price,
       image: widget.product.images
-          .map((image) =>
-          Images.fromJson(image.toJson())) // Assuming this is correct mapping
+          .map((image) => Images.fromJson(
+              image.toJson())) // Assuming this is correct mapping
           .toList(),
     );
 
     // Printing the updated price for debugging
     print(productDetail?.price);
     // Create a ProductModel using the updated productDetail
-   // / Null check needed since it's nullable
+    // / Null check needed since it's nullable
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Product Details',
           style: TextStyle(color: Colors.black),
         ),
@@ -148,11 +175,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       );
                     },
                   ),
-                  IconButton(onPressed: ()async{
-                    final provider =Provider.of<AuthServiceProvider>(context,listen: false);
-                    await provider.clearToken(context);
-
-                  }, icon: Icon(Icons.logout_outlined,color: Colors.black,size: 30,))
+                  IconButton(
+                      onPressed: () async {
+                        final provider = Provider.of<AuthServiceProvider>(
+                            context,
+                            listen: false);
+                        await provider.clearToken(context);
+                      },
+                      icon: Icon(
+                        Icons.logout_outlined,
+                        color: Colors.black,
+                        size: 30,
+                      ))
                 ],
               );
             },
@@ -162,7 +196,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       body: SingleChildScrollView(
         child: Consumer<CartModel>(
           builder: (BuildContext context, cartModel, Widget? child) {
-            final provider  = Provider.of<AllAppProvider>(context,listen: false);
+            final provider =
+                Provider.of<AllAppProvider>(context, listen: false);
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -171,9 +206,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   padding: const EdgeInsets.all(16.0),
                   child: Center(
                     child: Image.network(
-
-                      productDetail!.image![0]
-                          .src!, // Replace with your image URL
+                      productDetail!
+                          .image![0].src!, // Replace with your image URL
                       height: 300,
                       fit: BoxFit.cover,
                     ),
@@ -193,36 +227,37 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       ListView.builder(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: _productVariation.length,
                         itemBuilder: (BuildContext context, int index) {
-                           var variation = _productVariation[index];
+                          var variation = _productVariation[index];
                           return Row(
                             spacing: 10,
                             children: [
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                      // Initialize productDetail here (if it's not final, and can be updated)
+                                    // Initialize productDetail here (if it's not final, and can be updated)
                                     productDetail = ProductDetail(
                                       name: widget.product.name,
                                       productId: variation.id,
                                       price: variation.price,
                                       image: variation.image != null
-                                          ? [Images.fromJson(variation.image!.toJson())] // If it's a single Image object
+                                          ? [
+                                              Images.fromJson(
+                                                  variation.image!.toJson())
+                                            ] // If it's a single Image object
                                           : [], // Return an empty list if image is null
                                     );
 
                                     // Printing the updated price for debugging
-                                      print(productDetail?.price);
-                                      // Create a ProductModel using the updated productDetail
-                                      // / Null check needed since it's nullable
-
+                                    print(productDetail?.price);
+                                    // Create a ProductModel using the updated productDetail
+                                    // / Null check needed since it's nullable
                                   });
-
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
@@ -235,15 +270,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                           color: Colors.white,
                                           border: Border.all(
                                               color: Colors.black, width: 1),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         child: Center(
                                             child: Text(
-                                              variation.attributes[0].option.toString(),
+                                          variation.attributes[0].option
+                                              .toString(),
                                           style: TextStyle(fontSize: 15),
                                         )),
                                       ),
-
                                     ],
                                   ),
                                 ),
@@ -253,9 +289,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           );
                         },
                       ),
-                  SizedBox(height: 8),
+                      SizedBox(height: 8),
 
-                  // Row(
+                      // Row(
                       //   spacing: 10,
                       //   children: [
                       //     InkWell(
@@ -290,7 +326,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         height: 10,
                       ),
                       Text(
-
                         '\$${productDetail!.price.toString()} • Free Shipping',
                         style: TextStyle(
                           fontSize: 18,
@@ -299,10 +334,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        widget.product.description!,
-                        style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      RichText(
+                        text: HTML.toTextSpan(
+                            context,widget.product.description!),
                       ),
+                      // Text(
+                      //   widget.product.description!,
+                      //   style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      // ),
                       SizedBox(height: 16),
                     ],
                   ),
@@ -413,7 +452,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         indicatorColor: Colors.green,
                         tabs: [
                           Tab(text: 'Description'),
-                          Tab(text: 'Reviews (0)'),
+                          Consumer<AllAppProvider>(
+                            builder: (BuildContext context, allProvider,
+                                Widget? child) {
+                              return Tab(
+                                  text:
+                                      'Reviews (${allProvider.isReviewLoad==true?0:allProvider.reviewData.length})');
+                            },
+                          ),
                         ],
                       ),
                       SizedBox(
@@ -431,149 +477,265 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
 
                             // Reviews Tab
-                            Consumer <AllAppProvider>(
-
-                              builder: (BuildContext context, value, Widget? child) {
+                            Consumer<AllAppProvider>(
+                              builder:
+                                  (BuildContext context, value, Widget? child) {
                                 return Column(
                                   children: [
-                                    value.latestReview!=null?
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 30,
-                                            child: Image.asset('assets/images/logo3.png'),
-                                          ),
-                                          Column(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
-                                            children: [
-                                              const Text('Your review is awaiting approval'),
-                                              Text(value.latestReview!.review.toString()),
-
-                                              // Display stars based on the rating
-                                              Row(
-                                                children: List.generate(5, (index) {
-                                                  // Check if the current index is less than the rating
-                                                  bool isFilled = index < value.latestReview!.rating!.toInt();
-                                                  return Icon(
-                                                    Icons.star,
-                                                    color: isFilled ? Colors.yellow : Colors.grey, // Yellow if filled, grey otherwise
-                                                    size: 20.0,
-                                                  );
-                                                }),
+                                    value.isReviewLoad==true?
+                                        CircularProgressIndicator(color: Colors.black,):
+                                    value.reviewData.isNotEmpty
+                                        ? ListView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount: value.reviewData.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding: const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 5),
+                                                        child: CircleAvatar(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          radius: 30,
+                                                          child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(50),
+                                                              child: Image.network(
+                                                                value
+                                                                    .reviewData[
+                                                                        index]
+                                                                    .reviewerAvatarUrls!
+                                                                    .s48!,
+                                                                fit: BoxFit.cover,
+                                                              )),
+                                                        ),
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            value.reviewData[index]
+                                                                .reviewer!,
+                                                            style: const TextStyle(
+                                                                fontSize: 17,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          RatingBar.builder(
+                                                            initialRating: value
+                                                                .reviewData[index]
+                                                                .rating!
+                                                                .toDouble(),
+                                                            minRating: 0,
+                                                            itemSize: 15,
+                                                            direction:
+                                                                Axis.horizontal,
+                                                            allowHalfRating: true,
+                                                            itemCount: 5,
+                                                            itemPadding: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal: 0),
+                                                            itemBuilder:
+                                                                (context, _) =>
+                                                                    Icon(
+                                                              Icons.star,
+                                                              color: Colors.amber,
+                                                            ),
+                                                            onRatingUpdate:
+                                                                (rating) {
+                                                              print(rating);
+                                                            },
+                                                          ),
+                                                          RichText(
+                                                            text: HTML.toTextSpan(
+                                                                context,
+                                                                value
+                                                                    .reviewData[
+                                                                        index]
+                                                                    .review!),
+                                                          )
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 10,)
+                                                ],
+                                              );
+                                            },
+                                          )
+                                        : Align(
+                                            alignment: Alignment.topLeft,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(16.0),
+                                              child: Text(
+                                                'No reviews yet.',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey[700]),
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                    )
-                                        :
-                                    Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Text(
-                                          'No reviews yet.',
-                                          style: TextStyle(
-                                              fontSize: 16, color: Colors.grey[700]),
-                                        ),
-                                      ),
-                                    ),
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
-                                          const Align(
-                                              alignment: Alignment.topLeft,
-                                              child: Text('Be the first to review "Bird Of Paradise"')),
+
+                                          SizedBox(height: 30,),
+                                          // const Align(
+                                          //     alignment: Alignment.topLeft,
+                                          //     child: Text(
+                                          //         'Be the first to review "Bird Of Paradise"')),
+                                          Divider(color: Colors.black,),
                                           const Row(
                                             children: [
-                                              Text('Your Rating*'),
+                                              Text('Your Rating  '),
                                               StarRatingWidget(),
                                             ],
                                           ),
-                                          SizedBox(height: 20,),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
                                           SizedBox(
                                             width: double.infinity,
                                             height: 80,
                                             child: TextField(
                                               controller: reviewController,
-                                              maxLines: 5, // Specifies the height of the text area
+                                              maxLines: 5,
+                                              // Specifies the height of the text area
                                               decoration: const InputDecoration(
-                                                border: OutlineInputBorder(), // Adds a border around the text area
-                                                labelText: 'Enter your review', // Placeholder or label
-                                                hintText: 'Write your review here...',
+                                                border: OutlineInputBorder(),
+                                                // Adds a border around the text area
+                                                labelText: 'Enter your review',
+                                                // Placeholder or label
+                                                hintText:
+                                                    'Write your review here...',
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(height: 20,),
+                                          const SizedBox(
+                                            height: 20,
+                                          ),
                                           Row(
                                             children: [
-                                              GlobalTextField(name: 'Name', controller: nameController),
-                                              GlobalTextField(name: 'Email', controller: emailController),
+                                              GlobalTextField(
+                                                  name: 'Name',
+                                                  controller: nameController),
+                                              GlobalTextField(
+                                                  name: 'Email',
+                                                  controller: emailController),
                                             ],
                                           ),
-                                          const SizedBox(height: 10,),
-                                          value.reviewLoading ?
-                                              const Center(child: CircularProgressIndicator(color: Colors.black,)):
-                                          Align(
-                                            alignment: Alignment.center,
-                                            child: InkWell(
-                                              onTap: () async{
-                                                final provider  = Provider.of<AllAppProvider>(context,listen: false);
-                                                if(provider.productRating==0){
-                                                  MotionToast.error(
-                                                    title:  Text("Failed"),
-                                                    description:  Text("Please add some rating"),
-                                                  ).show(context);
-
-                                                }else if(reviewController.text.isEmpty){
-                                                  MotionToast.error(
-                                                    title:  Text("Failed"),
-                                                    description:  Text("Please add review"),
-                                                  ).show(context);
-
-                                                }
-                                                else if (nameController.text.isEmpty){
-                                                  MotionToast.error(
-                                                    title:  Text("Failed"),
-                                                    description:  Text("Please add name"),
-                                                  ).show(context);
-                                                }else if (emailController.text.isEmpty){
-                                                  MotionToast.error(
-                                                    title:  Text("Failed"),
-                                                    description:  Text("Please add email"),
-                                                  ).show(context);
-                                                }
-                                                else{
-                                                  var review = await provider.ProductReviewMethod(productDetail!.productId??0, 'approved',nameController.text , emailController.text, reviewController.text, provider.productRating, false,context);
-                                                  emailController.clear();
-                                                  nameController.clear();
-                                                  reviewController.clear();
-                                                   FocusScope.of(context).unfocus();
-                                                  // CallWooSignal().addReview(productId: productDetail!.productId??0, reviewer: 'wajahat', reviewerEmail: 'oso.wajahatullah@gmail.com', review:reviewController.text , rating: provider.productRating);
-                                                  print({review});
-                                                }
-
-                                              },
-                                              child: Container(
-                                                width: 300,
-                                                height: 40,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.green,
-                                                    borderRadius: BorderRadius.circular(7)
-                                                ),
-                                                child: const Center(child: Text('Submit', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
-                                              ),
-                                            ),
+                                          const SizedBox(
+                                            height: 10,
                                           ),
-
-
-
+                                          value.reviewLoading
+                                              ? const Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                  color: Colors.black,
+                                                ))
+                                              : Align(
+                                                  alignment: Alignment.center,
+                                                  child: InkWell(
+                                                    onTap: () async {
+                                                      final provider = Provider
+                                                          .of<AllAppProvider>(
+                                                              context,
+                                                              listen: false);
+                                                      if (provider
+                                                              .productRating ==
+                                                          0) {
+                                                        MotionToast.error(
+                                                          title: const Text("Failed"),
+                                                          description: const Text(
+                                                              "Please add some rating"),
+                                                        ).show(context);
+                                                      } else if (reviewController
+                                                          .text.isEmpty) {
+                                                        MotionToast.error(
+                                                          title: const Text("Failed"),
+                                                          description: const Text(
+                                                              "Please add review"),
+                                                        ).show(context);
+                                                      } else if (nameController
+                                                          .text.isEmpty) {
+                                                        MotionToast.error(
+                                                          title: const Text("Failed"),
+                                                          description: const Text(
+                                                              "Please add name"),
+                                                        ).show(context);
+                                                      } else if (emailController
+                                                          .text.isEmpty) {
+                                                        MotionToast.error(
+                                                          title: const Text("Failed"),
+                                                          description: const Text(
+                                                              "Please add email"),
+                                                        ).show(context);
+                                                      } else {
+                                                        var review = await provider
+                                                            .ProductReviewMethod(
+                                                                productDetail!.productId ??
+                                                                    0,
+                                                                'approved',
+                                                                nameController
+                                                                    .text,
+                                                                emailController
+                                                                    .text,
+                                                                reviewController
+                                                                    .text,
+                                                                provider
+                                                                    .productRating,
+                                                                false,
+                                                                context).then((value){
+                                                                  getReview();
+                                                        });
+                                                        getReview();
+                                                        emailController.clear();
+                                                        nameController.clear();
+                                                        reviewController
+                                                            .clear();
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        // CallWooSignal().addReview(productId: productDetail!.productId??0, reviewer: 'wajahat', reviewerEmail: 'oso.wajahatullah@gmail.com', review:reviewController.text , rating: provider.productRating);
+                                                        print({review});
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      width: 300,
+                                                      height: 40,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.green,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(7)),
+                                                      child: const Center(
+                                                          child: Text(
+                                                        'Submit',
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      )),
+                                                    ),
+                                                  ),
+                                                ),
                                         ],
                                       ),
                                     ),
@@ -595,6 +757,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 }
+
 class StarRatingWidget extends StatefulWidget {
   const StarRatingWidget({Key? key}) : super(key: key);
 
@@ -610,7 +773,6 @@ class _StarRatingWidgetState extends State<StarRatingWidget> {
     setState(() {
       _selectedRating = index;
     });
-
   }
 
   @override
@@ -619,11 +781,11 @@ class _StarRatingWidgetState extends State<StarRatingWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(5, (index) {
         return GestureDetector(
-          onTap: (){
-            final provider  = Provider.of<AllAppProvider>(context,listen: false);
+          onTap: () {
+            final provider =
+                Provider.of<AllAppProvider>(context, listen: false);
             _onStarTap(index + 1);
             provider.updateProductRating(_selectedRating);
-
           },
           child: Icon(
             Icons.star,

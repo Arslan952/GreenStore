@@ -62,7 +62,6 @@ void initState() {
     super.initState();
   }
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -272,14 +271,19 @@ class ProductCard extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            product.name!,
-            style: TextStyle(fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 8),
+          InkWell(
+            onTap: () async {
+              await CallWooSignal().getPaymentGateways();
+            },
+            child: Text(
+              product.name!,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           RatingBar.builder(
             initialRating: product.ratingCount!.toDouble() ?? 0.0,
             minRating: 0,
@@ -300,10 +304,10 @@ class ProductCard extends StatelessWidget {
           //   product.ratingCount.toString() ?? "Unknown",
           //   style: TextStyle(color: Colors.grey),
           // ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             "\$${product.price}",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
           ),
         ],
       ),

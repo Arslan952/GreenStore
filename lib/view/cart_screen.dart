@@ -140,7 +140,7 @@ class CartScreen extends StatelessWidget {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => BillingDetailsScreen(cartData:cartModel.cartItems,)));
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BillingDetailsScreen(cartData:cartModel.cartItems,)));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,

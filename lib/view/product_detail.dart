@@ -182,7 +182,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             listen: false);
                         await provider.clearToken(context);
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.logout_outlined,
                         color: Colors.black,
                         size: 30,
@@ -322,12 +322,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       //   ],
                       // ),
 
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       Text(
                         '\$${productDetail!.price.toString()} • Free Shipping',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           color: Colors.green,
                           fontWeight: FontWeight.w600,

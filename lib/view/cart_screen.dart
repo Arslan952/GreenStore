@@ -11,92 +11,10 @@ import 'billingInformation.dart';
 class CartScreen extends StatelessWidget {
 
   @override
-  void createAndSendOrder(BuildContext context,String name,List<CartItem>cartData) async {
-    WooSignal wooSignal = WooSignal.instance;
-    List<LineItems> lineItems = cartData.map((cartItem) {
-      return LineItems(
-        name: cartItem.productDetail.name,
-        productId: cartItem.productDetail.productId,
-        // variationId: cartItem.product. ?? 0,
-        quantity: cartItem.quantity,
-        taxClass: "",
-        subtotal: (double.parse(cartItem.productDetail.price!) * cartItem.quantity).toStringAsFixed(2),
-        total: (double.parse(cartItem.productDetail.price!) * cartItem.quantity).toStringAsFixed(2),
-      );
-    }).toList();
-    // Example order data
-    OrderWC orderWC = OrderWC(
-      paymentMethod: "bacs",
-      paymentMethodTitle: "Direct Bank Transfer",
-      setPaid: true,
-      status: 'processing',
-      currency: 'USD',
-      customerNote: "",
-      parentId: 0,
-      customerId: 0,
-      billing:Billing(
-        firstName: "John",
-        lastName: "Doe",
-        address1: "969 Market",
-        address2: "",
-        city: "San Francisco",
-        state: "CA",
-        postcode: "94103",
-        country: "US",
-        email: "john.doe@example.com",
-        phone: "(555) 555-5555",
-      ),
-      shipping:Shipping(
-        firstName: "John",
-        lastName: "Doe",
-        address1: "969 Market",
-        address2: "",
-        city: "San Francisco",
-        state: "CA",
-        postcode: "94103",
-        country: "US",
-      ),
-      lineItems: lineItems,
-      shippingLines: [
-        ShippingLines(
-            methodId: 'flat_rate',
-            methodTitle: 'Flat Rate',
-            total: '35'
-        )
-      ],
-    );
-    try {
-      // Send the order to WooSignal
-      createOrder(orderWC,context);
-      // await CallWooSignal().createOrder(orderWC.toJson());
-      // Order? order = await wooSignal.createOrder(orderWC);
-       SnackBar(content: Text('Order Created successfully'));
-      print("okokok");
-      // print('here is order id${order?.status.toString()}');
-      // .createOrderWC(orderWC: order);
-
-      // if (responseOrder != null && responseOrder.id != null) {
-      //   print("Order created successfully! Order ID: ${responseOrder.id}");
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text("Order created successfully! ID: ${responseOrder.id}")),
-      //   );
-      // } else {
-      //   print("Failed to create order");
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text("Failed to create order")),
-      //   );
-      // }
-    } catch (e) {
-      print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
-    }
-  }
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Your Cart" ,style: TextStyle(color: Colors.black)),
+        title: const Text("Your Cart" ,style: TextStyle(color: Colors.black)),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,

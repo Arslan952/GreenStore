@@ -1,15 +1,21 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:green_commerce/user_authentication/auth_service_provider.dart';
 import 'package:green_commerce/view/product_detail.dart';
 import 'package:green_commerce/repository/apis_call.dart';
+import 'package:green_commerce/view/widgets/customDrawer.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:woosignal/models/response/customer.dart';
 import 'package:woosignal/models/response/customer_batch.dart';
+import 'package:woosignal/models/response/order.dart';
 import 'package:woosignal/models/response/product.dart';
 import 'package:woosignal/models/response/product_category.dart';
+import 'package:woosignal/models/response/shipping_method.dart';
+import 'package:woosignal/models/response/shipping_zone.dart';
+import 'package:woosignal/models/response/shipping_zone_location.dart';
 import 'package:woosignal/woosignal.dart';
 
 import '../models/auth_model.dart';
@@ -24,6 +30,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List<ProductCategory> _categories = [];
   List<Product> _products = [];
   List<Customer> _customers = [];
@@ -64,6 +71,8 @@ void initState() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
+      drawer: const CustomDrawer(),
       appBar: AppBar(
         centerTitle: true,
         title: InkWell(
@@ -73,63 +82,50 @@ void initState() {
             child: const Text("Green Store", style: TextStyle(color: Colors.black),)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(onPressed:() => scaffoldKey.currentState!.openDrawer(), icon: const Icon(CupertinoIcons.bars,color: Colors.black,)),
         actions: [
           // Cart icon with item count
           Consumer<CartModel>(
             builder: (context, cartModel, child) {
               int cartItemCount = cartModel.cartItems.length;
               int totalqty  = cartModel.totalQuantity;
-              return Row(
-                children: [
-                  IconButton(
-                    icon: Stack(
-                      children: [
-                        Icon(Icons.shopping_cart, size: 30,color: Colors.black,),
-                        if (cartItemCount > 0)
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 18,
-                                minHeight: 18,
-                              ),
-                              child: Text(
-                                '$totalqty',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
+              return IconButton(
+                icon: Stack(
+                  children: [
+                    const Icon(Icons.shopping_cart_outlined, size: 30,color: Colors.black,),
+                    if (cartItemCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                      ],
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CartScreen()),
-                      );
-                    },
-                  ),
-                  IconButton(onPressed: ()async{
-                    final provider =Provider.of<AuthServiceProvider>(context,listen: false);
-                    await provider.clearToken(context);
-                    // AuthResponse? authResponse = await provider.retrieveAuthResponse();
-                    //  if(authResponse!=null){
-                    //      print('id:${authResponse.userId}');
-                    //      print('userName:${authResponse.userDisplayName}');
-                    //  }
-
-                  }, icon: Icon(Icons.logout_outlined,color: Colors.black,size: 30,))
-                ],
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Text(
+                            '$totalqty',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CartScreen()),
+                  );
+                },
               );
             },
           ),
@@ -274,7 +270,19 @@ class ProductCard extends StatelessWidget {
           const SizedBox(height: 8),
           InkWell(
             onTap: () async {
-              await CallWooSignal().getPaymentGateways();
+              List<WSShipping> shipping = await WooSignal.instance.getShippingMethods();
+              for (var shippingZone in shipping) {
+                print(shippingZone.name,);
+              }
+              // AuthResponse? authResponse = await Provider.of<AuthServiceProvider>(context,listen: false).retrieveAuthResponse();
+              // int userId=0;
+              // if(authResponse!=null){
+              //   userId=authResponse.userId;
+              //   print('id:${authResponse.userId}');
+              //   print('userName:${authResponse.userDisplayName}');
+              // }
+              // List<Order> orders = await WooSignal.instance.getOrders(customer:userId);
+              // print(orders.length);
             },
             child: Text(
               product.name!,

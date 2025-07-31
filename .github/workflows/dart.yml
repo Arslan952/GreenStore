@@ -1,4 +1,4 @@
-name: Build iOS IPA
+name: Build IPA and APK
 
 on:
   push:
@@ -8,7 +8,36 @@ on:
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        
+    - name: Flutter Doctor
+      run: flutter doctor -v
+        
+    - name: Install dependencies
+      run: flutter pub get
+      
+    - name: Build APK (release)
+      run: flutter build apk --release
+      
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-app
+        path: build/app/outputs/flutter-apk/app-release.apk
+        retention-days: 30
+
   build-ios:
+    needs: build-android
     runs-on: macos-latest
     
     steps:
@@ -18,10 +47,10 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        channel: 'stable'  # Uses latest stable version
+        channel: 'stable'
         
     - name: Flutter Doctor
-      run: flutter doctor -v  # For debugging
+      run: flutter doctor -v
         
     - name: Install dependencies
       run: flutter pub get
